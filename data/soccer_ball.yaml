@@ -1,0 +1,5 @@
+train: soccer_ball/images/train
+val: soccer_ball/images/val
+
+nc: 1
+names: ['ball']
