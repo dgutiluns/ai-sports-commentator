@@ -100,11 +100,11 @@ class VisionDetector:
         self.sport = sport
         # Initialize player detection model (original YOLOv8)
         self.player_model = YOLO(VISION_CONFIG["model"])
-        # Initialize ball detection model (SoccerNet YOLOv8)
-        self.ball_model = YOLO("models/soccernet_yolov8.pt")  # You'll need to download this
+        # Initialize ball detection model (our new trained model)
+        self.ball_model = YOLO("runs/detect/model2/weights/best.pt")  # Using our newly trained model
         
         self.confidence_threshold = 0.2  # Lowered threshold for better detection in distant images
-        self.ball_confidence_threshold = 0.3  # Separate threshold for ball detection
+        self.ball_confidence_threshold = 0.15  # Lower threshold for ball detection to catch far-away balls
         self.target_classes = VISION_CONFIG["classes"][sport]
         
         # Initialize trackers
@@ -130,7 +130,7 @@ class VisionDetector:
                      (player_detections.class_id == 0)  # 0 = person
         player_detections = player_detections[player_mask]
 
-        # 2. Detect ball using SoccerNet model
+        # 2. Detect ball using our new model
         ball_results = self.ball_model(frame)
         try:
             ball_detections = sv.Detections.from_ultralytics(ball_results[0])
