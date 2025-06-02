@@ -13,6 +13,9 @@ from moviepy import VideoFileClip, AudioFileClip, CompositeAudioClip
 from src.nlp.templates import event_to_commentary
 from src.tts.gtts_speaker import save_tts_audio
 from src.utils.overlay import overlay_audio_on_video
+from src.vision.ball_smoothing import filter_and_smooth_ball_positions
+from src.vision.player_id_smoothing import merge_player_ids
+from src.utils.audio_queue import queue_audio_clips
 
 # Use the ROMVER.mp4 video that we calibrated homography for
 VIDEO_PATH = 'data/pipelineV1/ROMVER.mp4'
@@ -135,8 +138,15 @@ try:
                 detections['ball']['img_x'], detections['ball']['img_y'], H
             )
 
+        # Collect for smoothing/merging
+        all_ball_positions.append({'frame': frame_idx, 'x': detections['ball']['img_x'], 'y': detections['ball']['img_y']} if detections['ball'] is not None else None)
+        all_player_tracks.extend([{**p, 'frame': frame_idx} for p in detections['players']])
+
         # 3. Run event detector
-        events = event_detector.update(frame_idx, detections)
+        events = event_detector.update(frame_idx, {
+            'ball': detections['ball'],
+            'players': detections['players']
+        })
         
         # 4. Visualize detections and events
         # Draw player circles at original image coordinates
@@ -240,5 +250,22 @@ finally:
         event['audio_path'] = audio_path
         event['audio_time'] = event['frame'] / fps
         audio_clips.append((audio_path, event['audio_time']))
-    overlay_audio_on_video(output_path, audio_clips, output_path.replace("_annotated.mp4", "_commentary.mp4"))
+
+    # After the frame loop, apply smoothing/merging
+    smoothed_ball_positions = filter_and_smooth_ball_positions(all_ball_positions)
+    merged_player_tracks = merge_player_ids(all_player_tracks)
+
+    # Run event detection using smoothed/merged data
+    all_events = []
+    for idx in range(len(smoothed_ball_positions)):
+        events = event_detector.update(idx, {
+            'ball': smoothed_ball_positions[idx],
+            'players': [p for p in merged_player_tracks if p['frame'] == idx]
+        })
+        if events:
+            all_events.extend(events)
+
+    # For audio commentary, queue the audio clips to avoid overlap
+    scheduled_audio_clips = queue_audio_clips(audio_clips, min_gap=1.0)
+    overlay_audio_on_video(output_path, scheduled_audio_clips, output_path.replace("_annotated.mp4", "_commentary.mp4"))
     print("Done! Commentary video saved as:", output_path.replace("_annotated.mp4", "_commentary.mp4")) 
