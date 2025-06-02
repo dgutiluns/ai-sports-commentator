@@ -8,6 +8,11 @@ from src.vision.detector import VisionDetector
 from src.game_engine.event_detector import EventDetector
 from src.vision.homography import get_homography_for_frame, map_to_field
 from collections import deque
+from gtts import gTTS
+from moviepy import VideoFileClip, AudioFileClip, CompositeAudioClip
+from src.nlp.templates import event_to_commentary
+from src.tts.gtts_speaker import save_tts_audio
+from src.utils.overlay import overlay_audio_on_video
 
 # Use the ROMVER.mp4 video that we calibrated homography for
 VIDEO_PATH = 'data/pipelineV1/ROMVER.mp4'
@@ -220,4 +225,20 @@ finally:
     
     print("\nDetailed event log:")
     for event in all_events:
-        print(f"Frame {event['frame']}: {event['event']}") 
+        print(f"Frame {event['frame']}: {event['event']}")
+
+    # === Commentary Audio Generation and Overlay ===
+    print("\nGenerating commentary audio and overlaying on video...")
+    fps = int(fps) if isinstance(fps, float) else fps
+    audio_dir = "event_audio"
+    audio_clips = []
+    for event in all_events:
+        text = event_to_commentary(event)
+        audio_path = os.path.join(audio_dir, f"event_{event['frame']}.mp3")
+        os.makedirs(audio_dir, exist_ok=True)
+        save_tts_audio(text, audio_path)
+        event['audio_path'] = audio_path
+        event['audio_time'] = event['frame'] / fps
+        audio_clips.append((audio_path, event['audio_time']))
+    overlay_audio_on_video(output_path, audio_clips, output_path.replace("_annotated.mp4", "_commentary.mp4"))
+    print("Done! Commentary video saved as:", output_path.replace("_annotated.mp4", "_commentary.mp4")) 
