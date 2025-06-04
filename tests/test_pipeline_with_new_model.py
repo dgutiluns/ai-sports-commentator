@@ -14,8 +14,10 @@ from src.nlp.templates import event_to_commentary
 from src.tts.gtts_speaker import save_tts_audio
 from src.utils.overlay import overlay_audio_on_video
 from src.vision.ball_smoothing import filter_and_smooth_ball_positions
-from src.vision.player_id_smoothing import merge_player_ids
+from src.player_tracking import merge_player_ids
 from src.utils.audio_queue import queue_audio_clips
+from src.utils.event_postprocessing import deduplicate_events
+from src.utils.event_utils import filter_self_passes
 
 # Use the ROMVER.mp4 video that we calibrated homography for
 VIDEO_PATH = 'data/pipelineV1/ROMVER.mp4'
@@ -40,6 +42,8 @@ fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
 
 frame_idx = 0
+all_ball_positions = []
+all_player_tracks = []
 
 # Buffer for ball detections (frame_idx, ball dict or None)
 ball_buffer = deque(maxlen=6)  # 5 lookahead + current
@@ -147,6 +151,9 @@ try:
             'ball': detections['ball'],
             'players': detections['players']
         })
+        
+        # Filter out self-passes
+        events = filter_self_passes(events)
         
         # 4. Visualize detections and events
         # Draw player circles at original image coordinates
@@ -265,7 +272,21 @@ finally:
         if events:
             all_events.extend(events)
 
-    # For audio commentary, queue the audio clips to avoid overlap
-    scheduled_audio_clips = queue_audio_clips(audio_clips, min_gap=1.0)
-    overlay_audio_on_video(output_path, scheduled_audio_clips, output_path.replace("_annotated.mp4", "_commentary.mp4"))
+    # Deduplicate dribble events before generating commentary/audio
+    all_events = deduplicate_events(all_events)
+
+    # For audio commentary, generate audio clips for deduplicated events
+    audio_dir = "event_audio"
+    audio_clips = []
+    for event in all_events:
+        text = event_to_commentary(event)
+        audio_path = os.path.join(audio_dir, f"event_{event['frame']}.mp3")
+        os.makedirs(audio_dir, exist_ok=True)
+        save_tts_audio(text, audio_path)
+        event['audio_path'] = audio_path
+        event['audio_time'] = event['frame'] / fps
+        audio_clips.append((audio_path, event['audio_time']))
+
+    # Overlay audio clips directly (no queuing)
+    overlay_audio_on_video(output_path, audio_clips, output_path.replace("_annotated.mp4", "_commentary.mp4"))
     print("Done! Commentary video saved as:", output_path.replace("_annotated.mp4", "_commentary.mp4")) 
