@@ -37,32 +37,39 @@ class EventDetector:
         events = []
         ball = detections.get('ball')
         players = detections.get('players', [])
+        
+        # Print debug info
         print(f"  Ball field coordinates: {ball if ball is not None else 'None'}")
         for p in players:
             print(f"  Player {p['id']} field coordinates: (x={p['x']:.2f}, y={p['y']:.2f}, team={p.get('team')})")
 
+        # Skip event detection if ball is not detected or missing coordinates
+        if ball is None or 'x' not in ball or 'y' not in ball:
+            # Update state with None for ball position
+            self.prev_ball_position = None
+            self.prev_player_positions = players
+            return events
+
         # Out of bounds detection
-        if ball is not None:
-            if not (FIELD_X_MIN <= ball['x'] <= FIELD_X_MAX and FIELD_Y_MIN <= ball['y'] <= FIELD_Y_MAX):
-                events.append({
-                    'event': 'out_of_bounds',
-                    'by_player': self._closest_player(ball, players)['id'] if players else None,
-                    'frame': frame_idx
-                })
+        if not (FIELD_X_MIN <= ball['x'] <= FIELD_X_MAX and FIELD_Y_MIN <= ball['y'] <= FIELD_Y_MAX):
+            events.append({
+                'event': 'out_of_bounds',
+                'by_player': self._closest_player(ball, players)['id'] if players else None,
+                'frame': frame_idx
+            })
 
         # Goal detection (refined)
-        if ball is not None:
-            in_goal1 = (GOAL_X_MIN <= ball['x'] <= GOAL_X_MAX and GOAL_Y_MIN <= ball['y'] <= GOAL_Y_MAX)
-            in_goal2 = (GOAL2_X_MIN <= ball['x'] <= GOAL2_X_MAX and GOAL2_Y_MIN <= ball['y'] <= GOAL2_Y_MAX)
-            if in_goal1 or in_goal2:
-                events.append({
-                    'event': 'goal',
-                    'by_player': self._closest_player(ball, players)['id'] if players else None,
-                    'frame': frame_idx
-                })
+        in_goal1 = (GOAL_X_MIN <= ball['x'] <= GOAL_X_MAX and GOAL_Y_MIN <= ball['y'] <= GOAL_Y_MAX)
+        in_goal2 = (GOAL2_X_MIN <= ball['x'] <= GOAL2_X_MAX and GOAL2_Y_MIN <= ball['y'] <= GOAL2_Y_MAX)
+        if in_goal1 or in_goal2:
+            events.append({
+                'event': 'goal',
+                'by_player': self._closest_player(ball, players)['id'] if players else None,
+                'frame': frame_idx
+            })
 
         # Shot on goal detection
-        if self.prev_ball_position is not None and ball is not None:
+        if self.prev_ball_position is not None:
             ball_vec = np.array([ball['x'], ball['y']])
             speed = np.linalg.norm(ball_vec - self.prev_ball_position)
             shot_zone1 = (GOAL_X_MAX < ball['x'] < GOAL_X_MAX + 10 and GOAL_Y_MIN <= ball['y'] <= GOAL_Y_MAX)
@@ -75,7 +82,7 @@ class EventDetector:
                 })
 
         # Team-aware pass and turnover detection
-        if self.prev_ball_position is not None and ball is not None:
+        if self.prev_ball_position is not None:
             ball_movement = np.linalg.norm(np.array([ball['x'], ball['y']]) - self.prev_ball_position)
             if ball_movement > 5:
                 curr_closest = self._closest_player(ball, players)
@@ -100,7 +107,7 @@ class EventDetector:
                         })
 
         # Dribble detection
-        curr_closest = self._closest_player(ball, players) if ball is not None else None
+        curr_closest = self._closest_player(ball, players)
         if curr_closest:
             if self.last_possessing_player and curr_closest['id'] == self.last_possessing_player['id']:
                 # Continue dribble
@@ -130,7 +137,7 @@ class EventDetector:
             self.last_possessing_player = None
 
         # Update state
-        self.prev_ball_position = np.array([ball['x'], ball['y']]) if ball else None
+        self.prev_ball_position = np.array([ball['x'], ball['y']])
         self.prev_player_positions = players
         self.event_log.extend(events)
         return events
