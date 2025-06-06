@@ -20,7 +20,7 @@ from src.utils.event_postprocessing import deduplicate_events
 from src.utils.event_utils import filter_self_passes
 
 # Use the ROMVER.mp4 video that we calibrated homography for
-VIDEO_PATH = 'data/pipelineV1/ROMVER.mp4'
+VIDEO_PATH = 'data/pipelineV2/115.mp4'
 
 # Initialize detectors
 vision = VisionDetector(sport='soccer')
