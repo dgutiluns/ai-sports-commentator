@@ -50,7 +50,7 @@ def main():
     print("\nNext steps:")
     print("1. Place your soccer ball training images in data/soccer_ball/images/train")
     print("2. Place your validation images in data/soccer_ball/images/val")
-    print("3. Run the training script: python scripts/train_ball_detector.py")
+    print("3. Run the training script: python3 scripts/train_ball_detector.py")
 
 if __name__ == "__main__":
     main() 

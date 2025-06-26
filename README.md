@@ -31,7 +31,7 @@ An AI-powered sports commentary system focused on soccer, using computer vision 
 
 1. Create a virtual environment:
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
@@ -50,4 +50,14 @@ pip install -r requirements.txt
 
 ## License
 
-[Add license information here] 
+[Add license information here]
+
+## New Main Pipeline: Roboflow + ByteTrack for Player Tracking
+
+The new `src/main_pipeline.py` script runs the AI Commentator pipeline using Roboflow for player detection and ByteTrack for player tracking. This is now the recommended approach for player tracking, replacing YOLOv8 and merge_player_ids. Ball tracking, event detection, and commentary are not yet integrated in this script—they are left as TODOs for future updates.
+
+### Usage
+
+```bash
+python3 src/main_pipeline.py --input path/to/video.mp4 --output path/to/annotated_output.mp4 --debug
+```

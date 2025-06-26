@@ -1,0 +1,184 @@
+[
+  {
+    "frame": 0,
+    "field_pixels": 653472,
+    "field_percentage": 70.90625,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 10,
+    "field_pixels": 662187,
+    "field_percentage": 71.85188802083333,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 20,
+    "field_pixels": 670828,
+    "field_percentage": 72.78949652777777,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 30,
+    "field_pixels": 675877,
+    "field_percentage": 73.33734809027777,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 40,
+    "field_pixels": 670940,
+    "field_percentage": 72.80164930555556,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 50,
+    "field_pixels": 699428,
+    "field_percentage": 75.89279513888889,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 60,
+    "field_pixels": 725594,
+    "field_percentage": 78.73198784722221,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 70,
+    "field_pixels": 747412,
+    "field_percentage": 81.09939236111111,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 80,
+    "field_pixels": 752190,
+    "field_percentage": 81.61783854166667,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 90,
+    "field_pixels": 746279,
+    "field_percentage": 80.97645399305556,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 100,
+    "field_pixels": 717463,
+    "field_percentage": 77.84971788194444,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 110,
+    "field_pixels": 687034,
+    "field_percentage": 74.54796006944444,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 120,
+    "field_pixels": 661367,
+    "field_percentage": 71.76291232638889,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 130,
+    "field_pixels": 646850,
+    "field_percentage": 70.18771701388889,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 140,
+    "field_pixels": 645859,
+    "field_percentage": 70.08018663194444,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 150,
+    "field_pixels": 645134,
+    "field_percentage": 70.00151909722221,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 160,
+    "field_pixels": 647435,
+    "field_percentage": 70.25119357638889,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 170,
+    "field_pixels": 644262,
+    "field_percentage": 69.90690104166667,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 180,
+    "field_pixels": 635458,
+    "field_percentage": 68.95160590277779,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 190,
+    "field_pixels": 606099,
+    "field_percentage": 65.76595052083334,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 200,
+    "field_pixels": 594396,
+    "field_percentage": 64.49609375,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 210,
+    "field_pixels": 605167,
+    "field_percentage": 65.66482204861111,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 220,
+    "field_pixels": 601429,
+    "field_percentage": 65.25922309027777,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 230,
+    "field_pixels": 607224,
+    "field_percentage": 65.88802083333334,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 240,
+    "field_pixels": 610948,
+    "field_percentage": 66.29210069444444,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  },
+  {
+    "frame": 250,
+    "field_pixels": 609692,
+    "field_percentage": 66.15581597222221,
+    "homography_success": false,
+    "reason": "homography_error: OpenCV(4.10.0) /Users/xperience/GHA-Actions-OpenCV/_work/opencv-python/opencv-python/opencv/modules/core/src/matmul.dispatch.cpp:550: error: (-215:Assertion failed) scn + 1 == m.cols in function 'perspectiveTransform'\n"
+  }
+]

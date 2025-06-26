@@ -1,3 +1,5 @@
+# DEPRECATED: merge_player_ids and merge_player_ids_hungarian are deprecated for player tracking. Use ByteTrack for player tracking instead.
+# If needed for ball logic, move to a ball-specific module.
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 

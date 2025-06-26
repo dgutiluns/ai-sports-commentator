@@ -117,8 +117,12 @@ class VisionDetector:
         self.sport = sport
         # Initialize player detection model (original YOLOv8)
         self.player_model = YOLO(VISION_CONFIG["model"])
-        # Initialize ball detection model (our new trained model)
-        self.ball_model = YOLO("runs/detect/model2/weights/best.pt")  # Using our newly trained model
+        
+        # Initialize ball detection model (our new trained model) with robust path resolution
+        # Get the project root directory (assuming this file is in src/vision/)
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        ball_model_path = os.path.join(project_root, "runs", "detect", "model2", "weights", "best.pt")
+        self.ball_model = YOLO(ball_model_path)  # Using our newly trained model
         
         self.confidence_threshold = 0.2  # Lowered threshold for better detection in distant images
         self.ball_confidence_threshold = 0.15  # Lower threshold for ball detection to catch far-away balls
@@ -131,6 +135,7 @@ class VisionDetector:
         )
         
         logger.info(f"Initialized VisionDetector for {sport}")
+        logger.info(f"Ball model loaded from: {ball_model_path}")
     
     def detect(self, frame: np.ndarray) -> Dict[str, Any]:
         """Detect objects in the given frame and enrich player data."""
@@ -254,6 +259,71 @@ class RoboflowPlayerDetector:
             result = self.client.infer(temp_path, model_id=self.model_id)
         finally:
             os.remove(temp_path)
+        # Parse results: return list of [x1, y1, x2, y2, confidence]
+        bboxes = []
+        for pred in result.get("predictions", []):
+            x, y, w, h = pred["x"], pred["y"], pred["width"], pred["height"]
+            conf = pred.get("confidence", 1.0)
+            x1 = int(x - w / 2)
+            y1 = int(y - h / 2)
+            x2 = int(x + w / 2)
+            y2 = int(y + h / 2)
+            bboxes.append([x1, y1, x2, y2, conf])
+        return bboxes
+
+# --- Roboflow Integration for Ball Detection ---
+class RoboflowBallDetector:
+    """Detects balls using the Roboflow hosted API."""
+    def __init__(self, model_id=None):
+        # Default to a placeholder - user should update this with real model ID
+        if model_id is None:
+            model_id = "soccer-ball-detection-xyz/1"  # Placeholder - needs real model ID
+        
+        api_key = os.getenv("ROBOFLOW_API_KEY")
+        if not api_key:
+            raise ValueError("ROBOFLOW_API_KEY not set in environment.")
+        
+        self.client = InferenceHTTPClient(
+            api_url="https://serverless.roboflow.com",
+            api_key=api_key
+        )
+        self.model_id = model_id
+        logger.info(f"Initialized RoboflowBallDetector with model: {model_id}")
+
+    def detect_balls(self, frame):
+        """Detect balls in the given frame using Roboflow API.
+        
+        Args:
+            frame: Input video frame as numpy array
+            
+        Returns:
+            List of [x1, y1, x2, y2, confidence] for each detected ball
+        """
+        # Check if frame is valid
+        if frame is None or frame.size == 0:
+            print("Warning: Empty frame encountered, skipping.")
+            return []
+        
+        # Save frame to a temporary file
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
+            temp_path = temp_file.name
+            cv2.imwrite(temp_path, frame)
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
+        
+        # Double-check file exists and is non-empty
+        if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:
+            print(f"Temp image {temp_path} is missing or empty! Skipping frame.")
+            return []
+        
+        try:
+            result = self.client.infer(temp_path, model_id=self.model_id)
+        except Exception as e:
+            logger.error(f"Roboflow API error: {e}")
+            return []
+        finally:
+            os.remove(temp_path)
+        
         # Parse results: return list of [x1, y1, x2, y2, confidence]
         bboxes = []
         for pred in result.get("predictions", []):

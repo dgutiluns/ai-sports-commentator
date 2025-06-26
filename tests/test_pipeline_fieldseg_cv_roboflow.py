@@ -13,7 +13,6 @@ from src.nlp.templates import event_to_commentary
 from src.tts.gtts_speaker import save_tts_audio
 from src.utils.overlay import overlay_audio_on_video
 from src.vision.ball_smoothing import filter_and_smooth_ball_positions
-from src.player_tracking import merge_player_ids
 from src.utils.audio_queue import queue_audio_clips
 from src.utils.event_postprocessing import deduplicate_events
 from src.utils.event_utils import filter_self_passes
@@ -264,7 +263,7 @@ finally:
     print("\nApplying post-processing (smoothing, merging, deduplication)...")
     smoothed_ball_positions = filter_and_smooth_ball_positions(all_ball_positions)
     print("Sample player track:", all_player_tracks[0] if all_player_tracks else "No tracks")
-    merged_player_tracks = merge_player_ids(all_player_tracks, distance_threshold=7)
+    merged_player_tracks = all_player_tracks
     all_events = []
     for idx in range(len(smoothed_ball_positions)):
         events = event_detector.update(idx, {

@@ -14,7 +14,6 @@ from src.nlp.templates import event_to_commentary
 from src.tts.gtts_speaker import save_tts_audio
 from src.utils.overlay import overlay_audio_on_video
 from src.vision.ball_smoothing import filter_and_smooth_ball_positions
-from src.player_tracking import merge_player_ids
 from src.utils.audio_queue import queue_audio_clips
 from src.utils.event_postprocessing import deduplicate_events
 from src.utils.event_utils import filter_self_passes
@@ -260,7 +259,7 @@ finally:
 
     # After the frame loop, apply smoothing/merging
     smoothed_ball_positions = filter_and_smooth_ball_positions(all_ball_positions)
-    merged_player_tracks = merge_player_ids(all_player_tracks)
+    merged_player_tracks = all_player_tracks
 
     # Run event detection using smoothed/merged data
     all_events = []

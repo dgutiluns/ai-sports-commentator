@@ -1,3 +1,5 @@
+# DEPRECATED: This module and merge_player_ids are deprecated for player tracking. Use ByteTrack for player tracking instead.
+# If needed for ball logic, move to a ball-specific module.
 import numpy as np
 
 def merge_player_ids(player_tracks, max_dist=30):
