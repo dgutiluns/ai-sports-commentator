@@ -11,6 +11,9 @@ from ultralytics import YOLO
 import supervision as sv
 import easyocr
 from sklearn.cluster import KMeans
+import os
+from inference_sdk import InferenceHTTPClient
+import tempfile
 
 from config.config import VISION_CONFIG
 
@@ -60,7 +63,17 @@ def enrich_player_data(frame, player_bboxes, tracker_ids):
     # 1. Extract dominant color for each player
     for bbox in player_bboxes:
         x1, y1, x2, y2 = bbox
+        # Convert to integers and ensure valid bounds
+        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        h, w = frame.shape[:2]
+        x1 = max(0, min(x1, w-1))
+        y1 = max(0, min(y1, h-1))
+        x2 = max(x1+1, min(x2, w))  # Ensure x2 > x1
+        y2 = max(y1+1, min(y2, h))  # Ensure y2 > y1
         player_crop = frame[y1:y2, x1:x2]
+        # Skip if crop is too small (edge case)
+        if player_crop.size == 0:
+            continue
         crops.append(player_crop)
         dominant_color = get_dominant_color(player_crop)
         dominant_colors.append(dominant_color)
@@ -71,14 +84,17 @@ def enrich_player_data(frame, player_bboxes, tracker_ids):
         kmeans = KMeans(n_clusters=2, random_state=0).fit(dominant_colors_np)
         team_labels = kmeans.labels_  # 0 or 1 for each player
     else:
-        # Not enough players to cluster, assign all to team_0
         team_labels = [0] * len(dominant_colors)
 
     # 3. Assign team label to each player
+    crop_idx = 0  # Track which crop we're using
     for i, (bbox, tracker_id) in enumerate(zip(player_bboxes, tracker_ids)):
-        team = f"team_{team_labels[i]}"
-        number = detect_jersey_number(crops[i])
         x1, y1, x2, y2 = bbox
+        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        if crop_idx >= len(team_labels):
+            continue
+        team = f"team_{team_labels[crop_idx]}"
+        number = detect_jersey_number(crops[crop_idx]) if crop_idx < len(crops) else None
         players.append({
             "id": tracker_id,
             "x": (x1 + x2) // 2,
@@ -86,6 +102,7 @@ def enrich_player_data(frame, player_bboxes, tracker_ids):
             "team": team,
             "number": number
         })
+        crop_idx += 1
     return players
 
 class VisionDetector:
@@ -141,14 +158,12 @@ class VisionDetector:
         # Track players
         player_detections = self.tracker.update_with_detections(player_detections)
 
-        # Process player detections
-        player_bboxes = []
-        tracker_ids = []
-        for i in range(len(player_detections)):
-            bbox = player_detections.xyxy[i].astype(int)
-            obj_id = player_detections.tracker_id[i] if player_detections.tracker_id is not None else i
-            player_bboxes.append(bbox)
-            tracker_ids.append(obj_id)
+        # Extract player bboxes and tracker IDs after tracking
+        player_bboxes = player_detections.xyxy if len(player_detections) > 0 else np.array([])
+        tracker_ids = player_detections.tracker_id if len(player_detections) > 0 else np.array([])
+
+        # Enrich player data (team, number, feet position, etc.)
+        players = enrich_player_data(frame, player_bboxes, tracker_ids)
 
         # Process ball detection
         ball = None
@@ -162,9 +177,6 @@ class VisionDetector:
                 bbox = ball_detections.xyxy[best_ball_idx].astype(int)
                 x1, y1, x2, y2 = bbox
                 ball = {"x": (x1 + x2) // 2, "y": (y1 + y2) // 2}
-
-        # Enrich player data
-        players = enrich_player_data(frame, player_bboxes, tracker_ids)
 
         return {
             "players": players,
@@ -207,3 +219,49 @@ class VisionDetector:
             'player_positions': [],
             'game_events': []
         } 
+
+# --- Roboflow Integration for Player Detection ---
+class RoboflowPlayerDetector:
+    """Detects players using the Roboflow hosted API."""
+    def __init__(self, model_id="football-players-detection-3zvbc/12"):
+        api_key = os.getenv("ROBOFLOW_API_KEY")
+        if not api_key:
+            raise ValueError("ROBOFLOW_API_KEY not set in environment.")
+        self.client = InferenceHTTPClient(
+            api_url="https://serverless.roboflow.com",
+            api_key=api_key
+        )
+        self.model_id = model_id
+
+    def detect_players(self, frame):
+        # Check if frame is valid
+        if frame is None or frame.size == 0:
+            print("Warning: Empty frame encountered, skipping.")
+            return []
+        # Save frame to a temporary file
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
+            temp_path = temp_file.name
+            cv2.imwrite(temp_path, frame)
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
+        # Double-check file exists and is non-empty
+        if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:
+            print(f"Temp image {temp_path} is missing or empty! Skipping frame.")
+            return []
+        # Optionally, add a tiny delay (uncomment if needed)
+        # import time; time.sleep(0.01)
+        try:
+            result = self.client.infer(temp_path, model_id=self.model_id)
+        finally:
+            os.remove(temp_path)
+        # Parse results: return list of [x1, y1, x2, y2, confidence]
+        bboxes = []
+        for pred in result.get("predictions", []):
+            x, y, w, h = pred["x"], pred["y"], pred["width"], pred["height"]
+            conf = pred.get("confidence", 1.0)
+            x1 = int(x - w / 2)
+            y1 = int(y - h / 2)
+            x2 = int(x + w / 2)
+            y2 = int(y + h / 2)
+            bboxes.append([x1, y1, x2, y2, conf])
+        return bboxes 

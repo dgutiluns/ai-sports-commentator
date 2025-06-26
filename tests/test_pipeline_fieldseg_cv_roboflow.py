@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import cv2
 import numpy as np
-from src.vision.detector import VisionDetector
+from src.vision.detector import VisionDetector, RoboflowPlayerDetector
 from src.game_engine.event_detector import EventDetector
 from src.vision.field_segmentation import segment_field
 from collections import deque
@@ -20,10 +20,11 @@ from src.utils.event_utils import filter_self_passes
 from src.vision.homography_auto import HomographyEstimator
 
 VIDEO_PATH = 'data/pipelineV2/115.mp4'
-vision = VisionDetector(sport='soccer')
+# Use Roboflow for player detection, keep YOLO for ball
+yolo_vision = VisionDetector(sport='soccer')
+roboflow_detector = RoboflowPlayerDetector()
 event_detector = EventDetector()
 
-# Known field coordinates (e.g., for a standard soccer field in meters, adjust as needed)
 FIELD_COORDS = np.array([
     [0, 0],        # top-left
     [0, 68],       # bottom-left
@@ -41,7 +42,7 @@ frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
-output_path = 'data/pipelineV2/fieldseg_cv_annotated.mp4'
+output_path = 'data/pipelineV2/fieldseg_cv_roboflow_annotated.mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
 
@@ -50,7 +51,7 @@ all_ball_positions = []
 all_player_tracks = []
 ball_buffer = deque(maxlen=6)
 
-print("\n=== Starting Event Detection with Field Segmentation (CV) ===")
+print("\n=== Starting Event Detection with Field Segmentation (CV) + Roboflow Players ===")
 print("Press Ctrl+C to stop and see summary\n")
 print(f"Annotated video will be saved to: {output_path}")
 
@@ -60,30 +61,53 @@ try:
         if not ret:
             break
 
-        # 1. Run vision detector
-        detections = vision.detect(frame)
+        # 1. Run player detection with Roboflow, ball detection with YOLO
+        # --- Player detection ---
+        roboflow_bboxes = roboflow_detector.detect_players(frame)
+        players = []
+        for i, bbox in enumerate(roboflow_bboxes):
+            x1, y1, x2, y2, conf = bbox
+            # Use center of bbox for player position
+            x = (x1 + x2) // 2
+            y = (y1 + y2) // 2
+            players.append({
+                'id': i+1,  # Assign a unique ID per frame (tracking can be improved)
+                'x': x,
+                'y': y,
+                'img_x': x,
+                'img_y': y,
+                'team': None,  # Team assignment can be added if needed
+                'number': None
+            })
+        # --- Ball detection (use YOLO from VisionDetector) ---
+        yolo_ball = yolo_vision.ball_model(frame)
+        try:
+            ball_detections = sv.Detections.from_ultralytics(yolo_ball[0])
+        except Exception as e:
+            ball_detections = None
+        ball = None
+        if ball_detections is not None:
+            ball_mask = (ball_detections.confidence > yolo_vision.ball_confidence_threshold)
+            ball_detections = ball_detections[ball_mask]
+            if len(ball_detections) > 0:
+                best_ball_idx = np.argmax(ball_detections.confidence)
+                bbox = ball_detections.xyxy[best_ball_idx].astype(int)
+                x1, y1, x2, y2 = bbox
+                ball = {'img_x': (x1 + x2) // 2, 'img_y': (y1 + y2) // 2}
 
-        # Store original image coordinates for visualization
-        for player in detections['players']:
-            player['img_x'] = player['x']
-            player['img_y'] = player['y']
-        if detections['ball'] is not None:
-            if 'img_x' not in detections['ball']:
-                detections['ball']['img_x'] = detections['ball'].get('x', 0)
-            if 'img_y' not in detections['ball']:
-                detections['ball']['img_y'] = detections['ball'].get('y', 0)
+        detections = {'players': players, 'ball': ball}
 
         # Add current ball detection to buffer
-        ball_buffer.append((frame_idx, detections['ball'].copy() if detections['ball'] is not None else None))
+        ball_buffer.append((frame_idx, ball.copy() if ball is not None else None))
 
         # Linear interpolation for missing ball detections (same as before)
         if detections['ball'] is None:
             prev_idx, prev_ball = None, None
             next_idx, next_ball = None, None
             for i in range(len(ball_buffer)-2, -1, -1):
-                idx, ball = ball_buffer[i]
-                if ball is not None:
-                    prev_idx, prev_ball = idx, ball
+                idx, b = ball_buffer[i]
+                if b is not None:
+                    prev_idx, prev_ball = idx, b
                     break
             lookahead = 0
             temp_buffer = []
@@ -91,16 +115,24 @@ try:
                 ret2, frame2 = cap.read()
                 if not ret2:
                     break
-                temp_detections = vision.detect(frame2)
-                temp_ball = temp_detections['ball']
-                if temp_ball is not None:
-                    if 'img_x' not in temp_ball:
-                        temp_ball['img_x'] = temp_ball.get('x', 0)
-                    if 'img_y' not in temp_ball:
-                        temp_ball['img_y'] = temp_ball.get('y', 0)
-                temp_buffer.append((frame_idx+lookahead+1, temp_ball.copy() if temp_ball is not None else None))
-                if temp_ball is not None:
-                    next_idx, next_ball = frame_idx+lookahead+1, temp_ball
+                # Ball detection only
+                yolo_ball2 = yolo_vision.ball_model(frame2)
+                try:
+                    ball_detections2 = sv.Detections.from_ultralytics(yolo_ball2[0])
+                except Exception as e:
+                    ball_detections2 = None
+                b2 = None
+                if ball_detections2 is not None:
+                    ball_mask2 = (ball_detections2.confidence > yolo_vision.ball_confidence_threshold)
+                    ball_detections2 = ball_detections2[ball_mask2]
+                    if len(ball_detections2) > 0:
+                        best_ball_idx2 = np.argmax(ball_detections2.confidence)
+                        bbox2 = ball_detections2.xyxy[best_ball_idx2].astype(int)
+                        x1, y1, x2, y2 = bbox2
+                        b2 = {'img_x': (x1 + x2) // 2, 'img_y': (y1 + y2) // 2}
+                temp_buffer.append((frame_idx+lookahead+1, b2.copy() if b2 is not None else None))
+                if b2 is not None:
+                    next_idx, next_ball = frame_idx+lookahead+1, b2
                     break
                 lookahead += 1
             for item in temp_buffer:
@@ -187,7 +219,7 @@ try:
                 y_offset += 30
         cv2.putText(overlay, f"Frame: {frame_idx}", (10, frame_height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
         out.write(overlay)
-        cv2.imshow('Event Detection (FieldSeg CV)', overlay)
+        cv2.imshow('Event Detection (FieldSeg CV) + Roboflow', overlay)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         if events:
@@ -230,13 +262,9 @@ finally:
 
     # === Post-processing and Commentary Generation ===
     print("\nApplying post-processing (smoothing, merging, deduplication)...")
-    
-    # Apply smoothing/merging
     smoothed_ball_positions = filter_and_smooth_ball_positions(all_ball_positions)
     print("Sample player track:", all_player_tracks[0] if all_player_tracks else "No tracks")
     merged_player_tracks = merge_player_ids(all_player_tracks, distance_threshold=7)
-
-    # Run event detection using smoothed/merged data
     all_events = []
     for idx in range(len(smoothed_ball_positions)):
         events = event_detector.update(idx, {
@@ -245,10 +273,7 @@ finally:
         })
         if events:
             all_events.extend(events)
-
-    # Deduplicate events before generating commentary
     all_events = deduplicate_events(all_events)
-
     print("\nGenerating commentary audio and overlaying on video...")
     fps = int(fps) if isinstance(fps, float) else fps
     audio_dir = "event_audio"

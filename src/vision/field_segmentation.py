@@ -74,4 +74,24 @@ def segment_field(img):
     filtered_mask = chromatic_distortion_filter(opened, green_mask)
     closed = cv2.morphologyEx(filtered_mask, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
     field_mask = largest_region_mask(closed)
-    return field_mask 
+    return field_mask
+
+def get_field_corners_from_mask(field_mask):
+    """
+    Extract field corners from a segmentation mask.
+    Returns 4 points (corners) or None if not found.
+    """
+    contours, _ = cv2.findContours(field_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours:
+        return None
+    largest = max(contours, key=cv2.contourArea)
+    epsilon = 0.02 * cv2.arcLength(largest, True)
+    approx = cv2.approxPolyDP(largest, epsilon, True)
+    if len(approx) == 4:
+        corners = approx.reshape(4, 2)
+        return corners
+    else:
+        # Fallback: use minimum area rectangle
+        rect = cv2.minAreaRect(largest)
+        box = cv2.boxPoints(rect)
+        return box.astype(int) 

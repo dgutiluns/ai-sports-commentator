@@ -37,7 +37,7 @@ def overlay_audio_on_video(video_path: str, audio_clips: list, output_path: str)
     final_audio = CompositeAudioClip(audio_tracks)
     
     # Set the audio of the video
-    final_video = video.set_audio(final_audio)
+    final_video = video.with_audio(final_audio)
     
     # Write the result
     final_video.write_videofile(output_path, codec='libx264', audio_codec='aac')

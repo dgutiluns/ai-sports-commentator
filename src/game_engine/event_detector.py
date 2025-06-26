@@ -31,6 +31,9 @@ class EventDetector:
         self.last_possessing_player: Optional[Dict[str, Any]] = None
         self.dribble_start_pos: Optional[np.ndarray] = None
         self.dribble_start_frame: Optional[int] = None
+        self.turnover_counter = 0
+        self.turnover_threshold = 15  # Require 15 frames of opponent being closest
+        self.last_ball_velocity = None
 
     def update(self, frame_idx: int, detections: Dict[str, Any]) -> List[Dict[str, Any]]:
         print(f"\n[EventDetector] Frame {frame_idx} called.")
@@ -49,6 +52,13 @@ class EventDetector:
             self.prev_ball_position = None
             self.prev_player_positions = players
             return events
+
+        # Calculate ball velocity if we have previous position
+        if self.prev_ball_position is not None:
+            ball_velocity = np.array([ball['x'], ball['y']]) - self.prev_ball_position
+            self.last_ball_velocity = ball_velocity
+        else:
+            self.last_ball_velocity = None
 
         # Out of bounds detection
         if not (FIELD_X_MIN <= ball['x'] <= FIELD_X_MAX and FIELD_Y_MIN <= ball['y'] <= FIELD_Y_MAX):
@@ -81,12 +91,13 @@ class EventDetector:
                     'frame': frame_idx
                 })
 
-        # Team-aware pass and turnover detection
+        # Team-aware pass and turnover detection with improved logic
         if self.prev_ball_position is not None:
             ball_movement = np.linalg.norm(np.array([ball['x'], ball['y']]) - self.prev_ball_position)
             if ball_movement > 5:
                 curr_closest = self._closest_player(ball, players)
                 prev_closest = self._closest_player_by_pos(self.prev_ball_position, self.prev_player_positions or [])
+                
                 if curr_closest and prev_closest and curr_closest['id'] != prev_closest['id']:
                     if curr_closest.get('team') == prev_closest.get('team'):
                         events.append({
@@ -97,14 +108,21 @@ class EventDetector:
                             'frame': frame_idx
                         })
                     else:
-                        events.append({
-                            'event': 'turnover',
-                            'from_player': prev_closest['id'],
-                            'to_player': curr_closest['id'],
-                            'from_team': prev_closest.get('team'),
-                            'to_team': curr_closest.get('team'),
-                            'frame': frame_idx
-                        })
+                        # Check if ball is moving toward the new player
+                        if self._is_ball_moving_toward_player(ball, curr_closest):
+                            self.turnover_counter += 1
+                            if self.turnover_counter >= self.turnover_threshold:
+                                events.append({
+                                    'event': 'turnover',
+                                    'from_player': prev_closest['id'],
+                                    'to_player': curr_closest['id'],
+                                    'from_team': prev_closest.get('team'),
+                                    'to_team': curr_closest.get('team'),
+                                    'frame': frame_idx
+                                })
+                                self.turnover_counter = 0
+                        else:
+                            self.turnover_counter = 0
 
         # Dribble detection
         curr_closest = self._closest_player(ball, players)
@@ -153,4 +171,20 @@ class EventDetector:
         if not players:
             return None
         dists = [np.linalg.norm(np.array([p['x'], p['y']]) - pos) for p in players]
-        return players[int(np.argmin(dists))] 
+        return players[int(np.argmin(dists))]
+
+    def _is_ball_moving_toward_player(self, ball: Dict[str, Any], player: Dict[str, Any]) -> bool:
+        """Check if the ball's movement is consistent with a turnover."""
+        if self.last_ball_velocity is None:
+            return True
+
+        # Calculate direction from ball to player
+        direction_to_player = np.array([player['x'] - ball['x'], player['y'] - ball['y']])
+        
+        # Normalize vectors for dot product
+        ball_velocity_norm = self.last_ball_velocity / np.linalg.norm(self.last_ball_velocity)
+        direction_norm = direction_to_player / np.linalg.norm(direction_to_player)
+        
+        # Check if the ball is moving toward the player (dot product > 0)
+        dot_product = np.dot(ball_velocity_norm, direction_norm)
+        return dot_product > 0 
