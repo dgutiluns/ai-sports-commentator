@@ -1,0 +1,392 @@
+[
+  {
+    "frame": 0,
+    "current_method": {
+      "pixels": 653472,
+      "percentage": 70.90625,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 10,
+    "current_method": {
+      "pixels": 662187,
+      "percentage": 71.85188802083333,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 20,
+    "current_method": {
+      "pixels": 670828,
+      "percentage": 72.78949652777777,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 30,
+    "current_method": {
+      "pixels": 675877,
+      "percentage": 73.33734809027777,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 40,
+    "current_method": {
+      "pixels": 670940,
+      "percentage": 72.80164930555556,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 50,
+    "current_method": {
+      "pixels": 699428,
+      "percentage": 75.89279513888889,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 60,
+    "current_method": {
+      "pixels": 725594,
+      "percentage": 78.73198784722221,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 70,
+    "current_method": {
+      "pixels": 747412,
+      "percentage": 81.09939236111111,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 80,
+    "current_method": {
+      "pixels": 752190,
+      "percentage": 81.61783854166667,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 90,
+    "current_method": {
+      "pixels": 746279,
+      "percentage": 80.97645399305556,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 100,
+    "current_method": {
+      "pixels": 717463,
+      "percentage": 77.84971788194444,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 110,
+    "current_method": {
+      "pixels": 687034,
+      "percentage": 74.54796006944444,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 120,
+    "current_method": {
+      "pixels": 661367,
+      "percentage": 71.76291232638889,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 130,
+    "current_method": {
+      "pixels": 646850,
+      "percentage": 70.18771701388889,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 140,
+    "current_method": {
+      "pixels": 645859,
+      "percentage": 70.08018663194444,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 150,
+    "current_method": {
+      "pixels": 645134,
+      "percentage": 70.00151909722221,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 160,
+    "current_method": {
+      "pixels": 647435,
+      "percentage": 70.25119357638889,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 170,
+    "current_method": {
+      "pixels": 644262,
+      "percentage": 69.90690104166667,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 180,
+    "current_method": {
+      "pixels": 635458,
+      "percentage": 68.95160590277779,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 190,
+    "current_method": {
+      "pixels": 606099,
+      "percentage": 65.76595052083334,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 200,
+    "current_method": {
+      "pixels": 594396,
+      "percentage": 64.49609375,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 210,
+    "current_method": {
+      "pixels": 605167,
+      "percentage": 65.66482204861111,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 220,
+    "current_method": {
+      "pixels": 601429,
+      "percentage": 65.25922309027777,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 230,
+    "current_method": {
+      "pixels": 607224,
+      "percentage": 65.88802083333334,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 240,
+    "current_method": {
+      "pixels": 610948,
+      "percentage": 66.29210069444444,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  },
+  {
+    "frame": 250,
+    "current_method": {
+      "pixels": 609692,
+      "percentage": 66.15581597222221,
+      "corners_detected": true,
+      "corner_count": 4
+    },
+    "roboflow_method": {
+      "pixels": 0,
+      "percentage": 0.0,
+      "corners_detected": false,
+      "corner_count": 0
+    }
+  }
+]

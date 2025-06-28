@@ -14,7 +14,11 @@ class HomographyEstimator:
         self.H_history = []
 
     def estimate(self, field_mask):
-        corners = get_field_corners_from_mask(field_mask)
+        corners_result = get_field_corners_from_mask(field_mask)
+        if corners_result is None:
+            return None
+        
+        corners, fallback_used = corners_result
         H = None
         if corners is not None and len(corners) == 4:
             corners = corners.astype(np.float32)
@@ -42,7 +46,56 @@ class HomographyEstimator:
             H = self.last_valid_H
         if H is None:
             return None, None
-        pt = np.array([[x, y]], dtype=np.float32)
-        pt = np.array([pt])
+        pt = np.array([[x, y]], dtype=np.float32).reshape(-1, 1, 2)
         mapped = cv2.perspectiveTransform(pt, H)
-        return mapped[0][0][0], mapped[0][0][1] 
+        return mapped[0][0][0], mapped[0][0][1]
+
+    def get_field_corners(self, field_mask):
+        """Extract field corners from the field mask for visualization."""
+        try:
+            result = get_field_corners_from_mask(field_mask)
+            if result is None:
+                return None
+            corners, fallback_used = result
+            return corners
+        except Exception as e:
+            print(f"Error getting field corners: {e}")
+            return None
+
+    def create_warped_grid(self, H, image_shape):
+        """Create a warped grid visualization for homography validation."""
+        if H is None:
+            return None
+        
+        try:
+            height, width = image_shape
+            # Create a grid pattern
+            grid_size = 20
+            grid_points = []
+            
+            for i in range(0, width, grid_size):
+                for j in range(0, height, grid_size):
+                    grid_points.append([i, j])
+            
+            if not grid_points:
+                return None
+            
+            grid_points = np.array(grid_points, dtype=np.float32).reshape(-1, 1, 2)
+            
+            # Apply homography transformation
+            warped_points = cv2.perspectiveTransform(grid_points, H)
+            
+            # Create output image
+            output = np.zeros((height, width, 3), dtype=np.uint8)
+            
+            # Draw warped grid points
+            for point in warped_points:
+                x, y = int(point[0][0]), int(point[0][1])
+                if 0 <= x < width and 0 <= y < height:
+                    cv2.circle(output, (x, y), 2, (255, 255, 255), -1)
+            
+            return output
+            
+        except Exception as e:
+            print(f"Error creating warped grid: {e}")
+            return None 

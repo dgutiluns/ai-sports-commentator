@@ -335,3 +335,67 @@ class RoboflowBallDetector:
             y2 = int(y + h / 2)
             bboxes.append([x1, y1, x2, y2, conf])
         return bboxes 
+
+class RoboflowFieldDetector:
+    """Detects the field using a Roboflow hosted segmentation or detection model."""
+    def __init__(self, model_id):
+        from inference_sdk import InferenceHTTPClient
+        import os
+        api_key = os.getenv("ROBOFLOW_API_KEY")
+        if not api_key:
+            raise ValueError("ROBOFLOW_API_KEY not set in environment.")
+        self.client = InferenceHTTPClient(
+            api_url="https://serverless.roboflow.com",
+            api_key=api_key
+        )
+        self.model_id = model_id
+
+    def detect_field(self, frame):
+        import cv2
+        import numpy as np
+        import tempfile
+        import os
+        # Save frame to a temporary file
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
+            temp_path = temp_file.name
+            cv2.imwrite(temp_path, frame)
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
+        if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:
+            print(f"Temp image {temp_path} is missing or empty! Skipping frame.")
+            return np.zeros(frame.shape[:2], dtype=np.uint8), []
+        try:
+            result = self.client.infer(temp_path, model_id=self.model_id)
+        finally:
+            os.remove(temp_path)
+        # Try to extract a binary mask or field outline from the result
+        mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+        contours = []
+        try:
+            if result and 'predictions' in result:
+                for pred in result['predictions']:
+                    # If segmentation mask is present
+                    if 'mask' in pred:
+                        try:
+                            from pycocotools import mask as maskUtils
+                            mask_data = pred['mask']
+                            mask = maskUtils.decode(mask_data)
+                            if mask.shape != frame.shape[:2]:
+                                mask = mask.squeeze()
+                            mask = (mask > 0).astype(np.uint8)
+                        except Exception as e:
+                            print(f"[RoboflowFieldDetector] pycocotools decode failed: {e}")
+                            if isinstance(pred['mask'], dict) and 'data' in pred['mask']:
+                                arr = np.array(pred['mask']['data']).reshape(frame.shape[:2])
+                                mask = (arr > 0).astype(np.uint8)
+                    # If only bounding box or polygon points are present
+                    elif 'points' in pred:
+                        pts = np.array(pred['points'], dtype=np.int32)
+                        contours.append(pts)
+            # If we got a mask, extract contours for visualization
+            if np.any(mask):
+                cnts, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours.extend(cnts)
+        except Exception as e:
+            print(f"[RoboflowFieldDetector] Error parsing result: {e}")
+        return mask, contours 

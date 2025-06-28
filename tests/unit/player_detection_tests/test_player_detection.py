@@ -10,7 +10,7 @@ OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'outputs', TEST_NAME)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 LOG_PATH = os.path.join(OUTPUT_DIR, 'player_detection_log.txt')
 
-VIDEO_PATH = 'data/pipelineV1/ROMVER.mp4'
+VIDEO_PATH = 'data/Bundesliga_Games/B1.mp4'
 YOLO_VIDEO_PATH = os.path.join(OUTPUT_DIR, 'yolo_player_detection_video.mp4')
 ROBOFLOW_VIDEO_PATH = os.path.join(OUTPUT_DIR, 'roboflow_player_detection_video.mp4')
 

@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 from sklearn.mixture import GaussianMixture
 
+# Global variable to track fallback usage
+fallback_usage_count = 0
+
 def morphological_opening(img, diameter_ratio=0.01):
     """
     Apply morphological opening to each channel to blend white lines into the grass.
@@ -80,18 +83,34 @@ def get_field_corners_from_mask(field_mask):
     """
     Extract field corners from a segmentation mask.
     Returns 4 points (corners) or None if not found.
+    Also tracks whether fallback rectangle was used.
     """
+    global fallback_usage_count
+    
     contours, _ = cv2.findContours(field_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if not contours:
-        return None
+        return None, False
+    
     largest = max(contours, key=cv2.contourArea)
     epsilon = 0.02 * cv2.arcLength(largest, True)
     approx = cv2.approxPolyDP(largest, epsilon, True)
+    
     if len(approx) == 4:
         corners = approx.reshape(4, 2)
-        return corners
+        return corners, False  # Normal 4-corner approximation used
     else:
         # Fallback: use minimum area rectangle
+        fallback_usage_count += 1
         rect = cv2.minAreaRect(largest)
         box = cv2.boxPoints(rect)
-        return box.astype(int) 
+        return box.astype(int), True  # Fallback rectangle used
+
+def reset_fallback_counter():
+    """Reset the fallback usage counter."""
+    global fallback_usage_count
+    fallback_usage_count = 0
+
+def get_fallback_count():
+    """Get the current fallback usage count."""
+    global fallback_usage_count
+    return fallback_usage_count 
