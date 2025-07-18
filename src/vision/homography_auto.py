@@ -48,7 +48,7 @@ class HomographyEstimator:
             return None, None
         pt = np.array([[x, y]], dtype=np.float32).reshape(-1, 1, 2)
         mapped = cv2.perspectiveTransform(pt, H)
-        return mapped[0][0][0], mapped[0][0][1]
+        return mapped[0][0][0], mapped[0][0][1] 
 
     def get_field_corners(self, field_mask):
         """Extract field corners from the field mask for visualization."""

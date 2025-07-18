@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 import cv2
 import numpy as np
 import supervision as sv
@@ -9,10 +9,10 @@ from src.vision.detector import VisionDetector, RoboflowPlayerDetector
 TEST_NAME = os.path.splitext(os.path.basename(__file__))[0]
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'outputs', TEST_NAME)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-VIDEO_PATH = 'data/pipelineV1/ROMVER.mp4'
+VIDEO_PATH = 'data/Bundesliga_Games/B1.mp4'
 OUT_VIDEO_PATH = os.path.join(OUTPUT_DIR, 'player_tracking_bytetrack_comparison.mp4')
 LOG_PATH = os.path.join(OUTPUT_DIR, 'player_tracking_bytetrack_log.txt')
-FRAME_LIMIT = 50
+FRAME_LIMIT = 400
 
 COLORS = [(np.random.randint(0,255), np.random.randint(0,255), np.random.randint(0,255)) for _ in range(100)]
 

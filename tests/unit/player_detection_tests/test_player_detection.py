@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 import cv2
 import numpy as np
 from src.vision.detector import VisionDetector, RoboflowPlayerDetector
@@ -14,7 +14,7 @@ VIDEO_PATH = 'data/Bundesliga_Games/B1.mp4'
 YOLO_VIDEO_PATH = os.path.join(OUTPUT_DIR, 'yolo_player_detection_video.mp4')
 ROBOFLOW_VIDEO_PATH = os.path.join(OUTPUT_DIR, 'roboflow_player_detection_video.mp4')
 
-FRAME_LIMIT = 50  # Limit to first 50 frames for speed
+FRAME_LIMIT = 250  # Limit to first 50 frames for speed
 
 def draw_boxes(frame, bboxes, color=(0,255,0), label_prefix=""):
     for i, bbox in enumerate(bboxes):
