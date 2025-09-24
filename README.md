@@ -42,15 +42,11 @@ pip install -r requirements.txt
 
 ## Usage
 
-[Add usage instructions here]
+Will add soon
 
 ## Development
 
-[Add development instructions here]
-
-## License
-
-[Add license information here] 
+Will add soon
 
 ## New Main Pipeline: Roboflow + ByteTrack for Player Tracking
 
